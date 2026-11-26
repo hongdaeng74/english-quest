@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#58CC02">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+<title>지영 님의 English Quest</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Segoe UI",Roboto,sans-serif;
+    background:#eef1f5;color:#3c3c3c;overscroll-behavior:none;
+    -webkit-font-smoothing:antialiased;
+  }
+  button{font-family:inherit;color:inherit;border:0;background:none;cursor:pointer}
+  .app{
+    position:relative;max-width:480px;margin:0 auto;
+    height:100vh;height:100dvh;display:flex;flex-direction:column;
+    background:#fff;overflow:hidden;box-shadow:0 0 60px rgba(20,30,50,.10);
+  }
+  .view{flex:1;display:flex;flex-direction:column;min-height:0}
+  .view.hidden{display:none}
+  .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+  /* ---------- home ---------- */
+  .topbar{display:flex;gap:8px;align-items:center;padding:14px 16px 8px}
+  .pill{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:800;
+    padding:7px 12px;border-radius:999px;background:#f6f7f9;border:2px solid #eef0f3}
+  .pill .em{font-size:15px;line-height:1}
+  .pill.streak{color:#ff8a00;background:#fff7ea;border-color:#ffe6bf}
+  .pill.xp{color:#1cb0f6;background:#eef9ff;border-color:#d3efff}
+  .pill.rank{margin-left:auto;color:#8b5cf6;background:#f6f0ff;border-color:#e9dcff}
+
+  .hero{margin:6px 16px 18px;padding:18px;border-radius:24px;
+    background:linear-gradient(135deg,#58CC02 0%,#3fbf3f 55%,#2fb0c9 130%);
+    color:#fff;box-shadow:0 10px 22px rgba(88,204,2,.28)}
+  .hero h1{margin:0;font-size:20px;font-weight:900;letter-spacing:-.3px}
+  .hero .sub{margin:6px 0 14px;font-size:13px;font-weight:700;opacity:.92}
+  .goalbar{height:12px;border-radius:999px;background:rgba(255,255,255,.32);overflow:hidden}
+  .goalbar > i{display:block;height:100%;width:0%;border-radius:999px;background:#fff;
+    box-shadow:inset 0 -2px 0 rgba(0,0,0,.08);transition:width .5s cubic-bezier(.2,.8,.2,1)}
+  .goalfoot{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;font-weight:800;opacity:.95}
+
+  .sect{display:flex;align-items:baseline;justify-content:space-between;padding:0 20px 10px}
+  .sect h2{margin:0;font-size:15px;font-weight:900;color:#3c3c3c}
+  .sect span{font-size:12px;font-weight:700;color:#afafaf}
+
+  .lesson{display:flex;align-items:center;gap:14px;margin:0 16px 12px;padding:14px;text-align:left;width:calc(100% - 32px);
+    background:#fff;border:2px solid #e8ebef;border-radius:22px;
+    box-shadow:0 4px 0 #eef0f3;transition:transform .08s,box-shadow .08s}
+  .lesson:active{transform:translateY(3px);box-shadow:0 1px 0 #eef0f3}
+  .lesson .ico{width:58px;height:58px;flex:none;border-radius:18px;display:grid;place-items:center;
+    font-size:27px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.06)}
+  .lesson .body{flex:1;min-width:0;display:block}
+  .lesson .t{font-size:15px;font-weight:900;letter-spacing:-.2px;display:flex;align-items:center;gap:6px}
+  .lesson .s{display:block;margin-top:3px;font-size:12px;font-weight:700;color:#9aa0a6;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lesson .meta{margin-top:6px;display:flex;gap:6px;align-items:center;font-size:11px;font-weight:800;color:#b3b8be}
+  .lesson .dot{width:6px;height:6px;border-radius:50%;background:#e3e6ea}
+  .lesson .dot.on{background:#58CC02}
+  .lesson .done{font-size:11px;font-weight:900;color:#58CC02;background:#eafbe0;
+    padding:3px 8px;border-radius:999px}
+  .lesson .chev{color:#cfd4da;font-size:18px;font-weight:900;flex:none}
+
+  .foot-note{padding:6px 22px 22px;font-size:11px;font-weight:700;color:#c0c5cb;text-align:center;line-height:1.6}
+
+  /* ---------- tabbar ---------- */
+  .tabbar{display:flex;border-top:2px solid #eef0f3;background:#fff;padding-bottom:env(safe-area-inset-bottom)}
+  .tab{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 0 8px;
+    font-size:11px;font-weight:800;color:#b3b8be}
+  .tab .ti{font-size:20px;line-height:1;filter:grayscale(1);opacity:.55}
+  .tab.on{color:#58CC02}
+  .tab.on .ti{filter:none;opacity:1}
+  .tab .badge{position:absolute;transform:translate(12px,-4px);background:#ff4b4b;color:#fff;
+    font-size:9px;font-weight:900;padding:1px 5px;border-radius:999px}
+
+  /* ---------- lesson ---------- */
+  .lhead{display:flex;align-items:center;gap:12px;padding:14px 16px 10px}
+  .xbtn{font-size:20px;font-weight:900;color:#b3b8be;padding:4px 8px;border-radius:12px;line-height:1}
+  .xbtn:active{background:#f2f4f7}
+  .pbar{flex:1;height:14px;border-radius:999px;background:#eef0f3;overflow:hidden}
+  .pbar > i{display:block;height:100%;width:0;border-radius:999px;
+    background:linear-gradient(180deg,#6ee70a,#58CC02);transition:width .35s cubic-bezier(.2,.8,.2,1)}
+  .qcount{font-size:11px;font-weight:900;color:#b3b8be;min-width:34px;text-align:right}
+
+  .qwrap{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 18px 24px}
+  .qtag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:900;
+    color:#58CC02;background:#eafbe0;padding:5px 10px;border-radius:999px;margin-bottom:12px}
+  .qtag.blue{color:#1cb0f6;background:#e7f6ff}
+  .qtag.pink{color:#d6336c;background:#ffeaf1}
+  .qtag.gray{color:#8b95a1;background:#f2f4f7}
+  .ko{font-size:19px;font-weight:900;line-height:1.45;letter-spacing:-.4px;word-break:keep-all;margin:0 0 8px}
+  .hint{font-size:13px;font-weight:700;color:#8b95a1;line-height:1.5;word-break:keep-all;margin:0 0 16px}
+  .hint b{color:#58CC02}
+
+  .audio-panel{background:#f6fbff;border:2px solid #dcefff;border-radius:20px;padding:14px;margin-bottom:16px}
+  .audio-btns{display:flex;gap:10px}
+  .abtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 6px;
+    background:#fff;border:2px solid #cfe9fb;border-radius:16px;border-bottom-width:4px;
+    font-size:12px;font-weight:900;color:#1cb0f6}
+  .abtn .e{font-size:23px;line-height:1}
+  .abtn:active{transform:translateY(3px);border-bottom-width:2px}
+  .audio-note{margin:10px 0 0;font-size:11.5px;font-weight:700;color:#7fa9c4;line-height:1.5;text-align:center}
+  .reveal{margin:10px auto 0;display:block;font-size:11.5px;font-weight:800;color:#9aa0a6;
+    text-decoration:underline;text-underline-offset:3px}
+  .gtext{margin-top:10px;padding:10px 12px;border-radius:12px;background:#fff;border:2px dashed #dcefff;
+    font-size:14px;font-weight:800;color:#3c3c3c;line-height:1.5}
+  .notice{margin:0 0 14px;padding:12px 14px;border-radius:14px;background:#fff8e6;border:2px solid #ffe8ab;
+    font-size:12px;font-weight:800;color:#b8860b;line-height:1.5}
+
+  .answerline{min-height:66px;display:flex;flex-wrap:wrap;gap:7px;align-content:flex-start;
+    padding:12px;border-radius:18px;background:#f7f8fa;border:2px dashed #dde1e7;margin-bottom:14px}
+  .answerline.locked{border-style:solid;border-color:#e9ecf1}
+  .ph{font-size:12.5px;font-weight:800;color:#c0c5cb;align-self:center;padding:6px 2px}
+  .tiles{display:flex;flex-wrap:wrap;gap:7px}
+  .tile{padding:11px 13px;border-radius:14px;background:#fff;border:2px solid #e2e6eb;
+    border-bottom-width:4px;font-size:15px;font-weight:800;letter-spacing:-.2px;
+    box-shadow:0 2px 0 rgba(0,0,0,.03);transition:transform .07s,border-color .12s,background .12s}
+  .tile:active{transform:translateY(3px);border-bottom-width:2px}
+  .tile.placed{background:#eafbe0;border-color:#b7e89a;border-bottom-color:#9bdd76}
+  .tile.placed:active{transform:translateY(3px)}
+  .locked .tile{pointer-events:none}
+  .tile.gone{visibility:hidden}
+
+  .opts{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+  .opt{display:flex;align-items:flex-start;gap:10px;text-align:left;padding:14px 15px;border-radius:16px;
+    background:#fff;border:2px solid #e2e6eb;border-bottom-width:4px;font-size:14.5px;font-weight:800;
+    line-height:1.45;letter-spacing:-.2px;transition:transform .07s}
+  .opt:active{transform:translateY(2px)}
+  .opt .k{flex:none;width:22px;height:22px;border-radius:7px;border:2px solid #dde1e7;background:#f7f8fa;
+    font-size:11px;font-weight:900;color:#9aa0a6;display:grid;place-items:center;margin-top:1px}
+  .opt.sel{border-color:#1cb0f6;background:#eef9ff}
+  .opt.sel .k{background:#1cb0f6;border-color:#1cb0f6;color:#fff}
+  .opt.right{border-color:#58CC02;background:#eafbe0}
+  .opt.right .k{background:#58CC02;border-color:#58CC02;color:#fff}
+  .opt.wrong{border-color:#ff4b4b;background:#fff0f0}
+  .opt.wrong .k{background:#ff4b4b;border-color:#ff4b4b;color:#fff}
+  .opts.locked .opt{pointer-events:none}
+
+  .dlg{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+  .bub{max-width:88%;padding:11px 14px;border-radius:18px;font-size:14px;font-weight:700;line-height:1.5}
+  .bub.a{background:#f2f4f7;border-bottom-left-radius:6px;align-self:flex-start}
+  .bub.b{background:#eafbe0;border-bottom-right-radius:6px;align-self:flex-end}
+  .bub .who{display:block;font-size:10px;font-weight:900;color:#9aa0a6;margin-bottom:3px;letter-spacing:.4px}
+
+  .sentbox{margin-bottom:14px;padding:14px;border-radius:16px;background:#f7f8fa;border:2px solid #eef0f3;
+    font-size:16px;font-weight:800;line-height:1.6}
+  .sentbox .gap{color:#1cb0f6;letter-spacing:2px}
+
+  .checkbar{padding:12px 18px calc(14px + env(safe-area-inset-bottom));border-top:2px solid #eef0f3;background:#fff}
+  .btn{display:block;width:100%;padding:16px;border-radius:18px;font-size:15px;font-weight:900;
+    letter-spacing:-.2px;text-align:center;transition:transform .07s,filter .12s}
+  .btn.primary{background:#58CC02;color:#fff;border-bottom:4px solid #46a302;box-shadow:0 2px 0 #46a302}
+  .btn.primary:active{transform:translateY(3px);border-bottom-width:1px}
+  .btn.primary:disabled{background:#e5e8ec;color:#b3b8be;border-bottom:4px solid #d8dce1;box-shadow:none}
+  .btn.blue{background:#1cb0f6;color:#fff;border-bottom:4px solid #1899d6}
+  .btn.blue:active{transform:translateY(3px);border-bottom-width:1px}
+  .btn.ghost{background:#fff;color:#8b95a1;border:2px solid #e2e6eb}
+  .btn.ghost:active{transform:translateY(2px)}
+
+  /* ---------- result ---------- */
+  .result{padding:30px 22px calc(22px + env(safe-area-inset-bottom));display:flex;flex-direction:column;
+    align-items:center;text-align:center;height:100%;justify-content:center}
+  .result .big{font-size:66px;line-height:1;margin-bottom:14px;animation:pop .5s cubic-bezier(.2,1.4,.4,1)}
+  @keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+  .result h2{margin:0;font-size:23px;font-weight:900;letter-spacing:-.5px}
+  .result .sub{margin:8px 0 22px;font-size:13.5px;font-weight:700;color:#8b95a1;line-height:1.5}
+  .statrow{display:flex;gap:10px;width:100%;margin-bottom:24px}
+  .stat{flex:1;padding:14px 8px;border-radius:18px;background:#f7f8fa;border:2px solid #eef0f3}
+  .stat .v{font-size:19px;font-weight:900;color:#3c3c3c}
+  .stat .l{margin-top:3px;font-size:11px;font-weight:800;color:#9aa0a6}
+  .result .btn + .btn{margin-top:10px}
+  .result .stack{width:100%}
+
+  /* ---------- sheet ---------- */
+  .backdrop{position:absolute;inset:0;background:rgba(15,25,40,.28);opacity:0;pointer-events:none;
+    transition:opacity .25s;z-index:20}
+  .backdrop.show{opacity:1;pointer-events:auto}
+  .sheet{position:absolute;left:0;right:0;bottom:0;z-index:30;background:#fff;
+    border-radius:26px 26px 0 0;padding:20px 20px calc(18px + env(safe-area-inset-bottom));
+    box-shadow:0 -10px 34px rgba(15,25,40,.18);transform:translateY(112%);
+    transition:transform .3s cubic-bezier(.2,.85,.25,1);max-height:82%;overflow-y:auto}
+  .sheet.show{transform:translateY(0)}
+  .stitle{display:flex;align-items:center;gap:8px;font-size:19px;font-weight:900;letter-spacing:-.4px}
+  .sheet.ok .stitle{color:#58CC02}
+  .sheet.no .stitle{color:#ff4b4b}
+  .stitle .e{font-size:22px}
+  .scorrect{margin:14px 0 0;padding:13px 14px;border-radius:16px;background:#f7f8fa;
+    font-size:15.5px;font-weight:800;line-height:1.5;display:flex;gap:10px;align-items:flex-start}
+  .scorrect .txt{flex:1;min-width:0}
+  .spk{flex:none;width:34px;height:34px;border-radius:11px;background:#e7f6ff;border:2px solid #cfe9fb;
+    display:grid;place-items:center;font-size:16px}
+  .spk:active{transform:translateY(2px)}
+  .idiom{margin-top:14px;padding:14px;border-radius:16px;background:#fffdf2;border:2px solid #ffeeb8}
+  .idiom .p{font-size:14.5px;font-weight:900;color:#b8860b;letter-spacing:-.2px}
+  .idiom .m{margin-top:5px;font-size:13px;font-weight:700;color:#8a7a4a;line-height:1.5;word-break:keep-all}
+  .idiom .x{margin-top:8px;font-size:12.5px;font-weight:700;color:#a99a6d;font-style:italic;line-height:1.45}
+  .explan{margin-top:12px;font-size:12.5px;font-weight:700;color:#8b95a1;line-height:1.6;word-break:keep-all}
+  .sfoot{display:flex;gap:10px;margin-top:18px}
+  .sfoot .btn{flex:1;padding:15px}
+  .saved{background:#fffdf2 !important;color:#b8860b !important;border:2px solid #ffe8ab !important}
+
+  /* ---------- notes ---------- */
+  .nhead{padding:18px 20px 10px}
+  .nhead h1{margin:0;font-size:21px;font-weight:900;letter-spacing:-.5px}
+  .nhead p{margin:6px 0 0;font-size:12.5px;font-weight:700;color:#9aa0a6;line-height:1.5}
+  .nempty{padding:60px 34px;text-align:center}
+  .nempty .e{font-size:52px;line-height:1;margin-bottom:14px}
+  .nempty .t{font-size:15px;font-weight:900;color:#8b95a1}
+  .nempty .d{margin-top:8px;font-size:12.5px;font-weight:700;color:#b3b8be;line-height:1.6}
+  .ncard{margin:0 16px 12px;padding:15px;border-radius:20px;background:#fff;border:2px solid #eef0f3;
+    box-shadow:0 3px 0 #f2f4f7}
+  .ncard .top{display:flex;align-items:center;gap:8px}
+  .ncard .p{flex:1;font-size:15px;font-weight:900;color:#3c3c3c;letter-spacing:-.2px}
+  .ncard .m{margin-top:6px;font-size:12.5px;font-weight:700;color:#8b95a1;line-height:1.5;word-break:keep-all}
+  .ncard .x{margin-top:9px;padding:10px 12px;border-radius:12px;background:#f7f8fa;
+    font-size:13px;font-weight:700;color:#5b6570;line-height:1.5}
+  .ncard .foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+  .ncard .src{font-size:10.5px;font-weight:800;color:#c0c5cb}
+  .ncard .del{font-size:11px;font-weight:800;color:#d0d5db;padding:4px 6px}
+  .ncard .del:active{color:#ff4b4b}
+
+  @media (min-width:520px){
+    body{background:#e7ebf1;padding:0}
+    .app{height:100dvh}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none !important;transition:none !important}
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- HOME -->
+  <main class="view" id="v-home">
+    <div class="topbar">
+      <div class="pill streak"><span class="em">🔥</span><span id="streakNum">0</span>일</div>
+      <div class="pill xp"><span class="em">⚡</span><span id="xpNum">0</span> XP</div>
+      <div class="pill rank" id="rankPill">🪄 노비스</div>
+    </div>
+    <div class="scroll">
+      <div class="hero">
+        <h1>안녕하세요, 지영 님 👋</h1>
+        <div class="sub" id="heroSub">오늘의 목표까지 한 걸음씩</div>
+        <div class="goalbar"><i id="goalFill"></i></div>
+        <div class="goalfoot"><span id="goalLeft">0 / 50 XP</span><span id="goalDone"></span></div>
+      </div>
+      <div class="sect"><h2>테마 레슨</h2><span id="lessonCount"></span></div>
+      <div id="lessonList"></div>
+      <div class="foot-note">진행 상황·연속 학습일·북마크는 이 기기에 저장돼요.<br>인터넷 없이도 그대로 열려요.</div>
+    </div>
+    <nav class="tabbar">
+      <button class="tab on" data-tab="home"><span class="ti">🏠</span>학습</button>
+      <button class="tab" data-tab="note"><span class="ti">⭐</span>내 이디엄 노트<span class="badge" id="noteBadge" hidden>0</span></button>
+    </nav>
+  </main>
+
+  <!-- LESSON -->
+  <main class="view hidden" id="v-lesson">
+    <div class="lhead">
+      <button class="xbtn" id="quitBtn" aria-label="나가기">✕</button>
+      <div class="pbar"><i id="lFill"></i></div>
+      <div class="qcount" id="qCount">1/7</div>
+    </div>
+    <div class="qwrap" id="qWrap"></div>
+    <div class="checkbar" id="checkBar">
+      <button class="btn primary" id="checkBtn" disabled>확인</button>
+    </div>
+  </main>
+
+  <!-- NOTES -->
+  <main class="view hidden" id="v-note">
+    <div class="nhead">
+      <h1>⭐ 내 이디엄 노트</h1>
+      <p id="noteSub">저장한 표현과 예문을 한눈에 복습해요.</p>
+    </div>
+    <div class="scroll" id="noteList"></div>
+    <nav class="tabbar">
+      <button class="tab" data-tab="home"><span class="ti">🏠</span>학습</button>
+      <button class="tab on" data-tab="note"><span class="ti">⭐</span>내 이디엄 노트</button>
+    </nav>
+  </main>
+
+  <div class="backdrop" id="backdrop"></div>
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* =========================================================
+     DATA — 5 lessons × 7 items = 35 items
+     ========================================================= */
+  var LESSONS = [
+    {
+      id: "l1", title: "일상 루틴 & 수다", emoji: "☕", color: "#58CC02",
+      sub: "아침·습관·가벼운 근황 토크", items: [
+        {
+          id: "l1-1", type: "build",
+          ko: "난 좀 습관에 얽매이는 편이야.",
+          hint: "매일 같은 아메리카노를 마시는 걸 스스로 아는 사람의 말투예요.",
+          tokens: ["I'm", "a", "bit", "of", "a", "creature", "of", "habit"],
+          sentence: "I'm a bit of a creature of habit.",
+          extra: ["really", "never", "kind"],
+          idiom: { p: "a creature of habit", m: "늘 똑같은 패턴을 반복하는 사람" }
+        },
+        {
+          id: "l1-2", type: "listen",
+          ko: "별일 없어. 늘 똑같지 뭐.",
+          hint: "근황을 물었을 때 가장 흔하게 돌아오는 대답이에요.",
+          tokens: ["Same", "old", "same", "old", "Nothing", "much", "going", "on"],
+          sentence: "Same old, same old. Nothing much going on.",
+          extra: ["special", "busy", "today"],
+          idiom: { p: "same old, same old", m: "늘 똑같고 별일 없는 일상" }
+        },
+        {
+          id: "l1-3", type: "build",
+          ko: "요즘 아침에 일어나는 게 정말 힘들어.",
+          hint: "‘힘에 부친다’는 뉘앙스는 struggle 하나로 살려요.",
+          tokens: ["Getting", "out", "of", "bed", "has", "been", "a", "real", "struggle", "lately"],
+          sentence: "Getting out of bed has been a real struggle lately.",
+          extra: ["easy", "morning", "sleep"],
+          idiom: { p: "be a real struggle", m: "꽤 힘에 부치는 일" }
+        },
+        {
+          id: "l1-4", type: "quiz",
+          situation: "친구가 늘 아메리카노만 마시는 걸 짚어요.",
+          lines: [["A", "You always order the same thing. Americano, no sugar?"], ["B", "__"]],
+          question: "빈칸에 들어갈 말로 가장 자연스러운 것은?",
+          options: ["I'm a creature of habit.", "I'm on the fence.", "I'm all ears."],
+          answer: 0,
+          sentence: "Guilty. I'm a creature of habit.",
+          example: "Guilty. I'm a creature of habit.",
+          idiom: { p: "a creature of habit", m: "늘 똑같은 패턴을 반복하는 사람" },
+          explanation: "on the fence는 ‘결정을 못 내리고’, all ears는 ‘잘 듣고 있어’라는 뜻이에요."
+        },
+        {
+          id: "l1-5", type: "blank",
+          situation: "알람을 세 번이나 끄고 나서 겨우 일어났어요.",
+          text: "I hit the snooze button three times before I finally ___.",
+          options: ["rolled out of bed", "took a rain check", "read the room"],
+          answer: 0,
+          sentence: "I hit the snooze button three times before I finally rolled out of bed.",
+          example: "I finally rolled out of bed at nine.",
+          idiom: { p: "roll out of bed", m: "겨우 침대에서 몸을 일으키다" },
+          explanation: "take a rain check는 ‘다음으로 미루다’, read the room은 ‘분위기를 살피다’예요."
+        },
+        {
+          id: "l1-6", type: "build",
+          ko: "주말엔 그냥 집에서 뒹굴뒹굴했어.",
+          hint: "아무것도 안 하고 늘어져 있던 하루를 담아요.",
+          tokens: ["I", "just", "lounged", "around", "the", "house", "all", "weekend"],
+          sentence: "I just lounged around the house all weekend.",
+          extra: ["cleaned", "worked", "busy"],
+          idiom: { p: "lounge around", m: "늘어져서 빈둥거리다" }
+        },
+        {
+          id: "l1-7", type: "listen",
+          ko: "난 아침형 인간은 아니야.",
+          hint: "‘아침형 인간’은 morning person 한 덩어리로 말해요.",
+          tokens: ["I'm", "not", "really", "a", "morning", "person"],
+          sentence: "I'm not really a morning person.",
+          extra: ["night", "early", "ever"],
+          idiom: { p: "a morning person", m: "아침에 강한 사람" }
+        }
+      ]
+    },
+    {
+      id: "l2", title: "음식 & 외출", emoji: "🍽️", color: "#FF9600",
+      sub: "먹고 마시고 나가는 자리 표현", items: [
+        {
+          id: "l2-1", type: "build",
+          ko: "배고파 죽겠어.",
+          hint: "horse를 써서 ‘엄청 배고프다’를 살려 보세요.",
+          tokens: ["I'm", "starving", "I", "could", "eat", "a", "horse"],
+          sentence: "I'm starving — I could eat a horse.",
+          extra: ["full", "sleepy", "thirsty"],
+          idiom: { p: "could eat a horse", m: "배가 고파 죽겠다" }
+        },
+        {
+          id: "l2-2", type: "listen",
+          ko: "오늘 저녁은 내가 쏠게.",
+          hint: "‘내가 낼게’는 on me로 끝나요.",
+          tokens: ["Dinner", "is", "on", "me", "tonight"],
+          sentence: "Dinner is on me tonight.",
+          extra: ["you", "us", "free"],
+          idiom: { p: "it's on me", m: "내가 계산할게" }
+        },
+        {
+          id: "l2-3", type: "build",
+          ko: "그 집 웨이팅이 장난 아니래.",
+          hint: "‘장난 아니다’는 no joke로 말해요.",
+          tokens: ["I", "heard", "the", "wait", "there", "is", "no", "joke"],
+          sentence: "I heard the wait there is no joke.",
+          extra: ["fun", "short", "easy"],
+          idiom: { p: "no joke", m: "만만치 않다, 장난 아니다" }
+        },
+        {
+          id: "l2-4", type: "quiz",
+          situation: "디저트를 나눠 먹자는데 이미 배가 부르다.",
+          lines: [["A", "Want to split a brownie? It's huge."], ["B", "__"]],
+          question: "빈칸에 들어갈 말로 가장 자연스러운 것은?",
+          options: ["I'm stuffed. I couldn't eat another bite.", "I'm down for that.", "It slipped my mind."],
+          answer: 0,
+          sentence: "I'm stuffed. I couldn't eat another bite.",
+          example: "I'm stuffed. I couldn't eat another bite.",
+          idiom: { p: "be stuffed", m: "배가 터질 듯 부르다" },
+          explanation: "I'm down은 ‘좋아(찬성)’, slip one's mind는 ‘깜빡하다’예요."
+        },
+        {
+          id: "l2-5", type: "blank",
+          situation: "외식하려다 마음을 바꿔서 배달을 시켰어요.",
+          text: "We were going to eat out, but we ___ and just ordered in.",
+          options: ["changed our minds", "called it a day", "broke the ice"],
+          answer: 0,
+          sentence: "We were going to eat out, but we changed our minds and just ordered in.",
+          example: "We changed our minds and ordered in.",
+          idiom: { p: "change one's mind", m: "마음을 바꾸다 (order in은 배달시키다)" },
+          explanation: "call it a day는 ‘오늘은 이만 끝내다’, break the ice는 ‘어색함을 풀다’예요."
+        },
+        {
+          id: "l2-6", type: "build",
+          ko: "그 집은 한 번 가면 계속 가게 돼.",
+          hint: "‘더 먹으러 다시 온다’는 뜻의 표현이에요.",
+          tokens: ["Once", "you", "try", "that", "place", "you", "keep", "coming", "back", "for", "more"],
+          sentence: "Once you try that place, you keep coming back for more.",
+          extra: ["never", "away", "less"],
+          idiom: { p: "come back for more", m: "더 먹으러·더 하러 다시 오다" }
+        },
+        {
+          id: "l2-7", type: "listen",
+          ko: "그냥 간단히 뭐 좀 먹자.",
+          hint: "‘간단히 한 입’은 grab a bite로 말해요.",
+          tokens: ["Let's", "just", "grab", "a", "quick", "bite"],
+          sentence: "Let's just grab a quick bite.",
+          extra: ["slow", "cook", "big"],
+          idiom: { p: "grab a bite", m: "간단히 뭐 좀 먹다" }
+        }
+      ]
+    },
+    {
+      id: "l3", title: "감정 & 리액션", emoji: "😅", color: "#CE82FF",
+      sub: "공감·긴장·놀람을 짧게 받아치기", items: [
+        {
+          id: "l3-1", type: "build",
+          ko: "완전 공감이야. 나도 그 기분 알아.",
+          hint: "동의할 때 쓰는 Tell me about it은 ‘나도 그래’예요.",
+          tokens: ["Tell", "me", "about", "it", "I", "know", "the", "feeling"],
+          sentence: "Tell me about it — I know the feeling.",
+          extra: ["never", "nothing", "easy"],
+          idiom: { p: "tell me about it", m: "완전 공감이야 (I know the feeling = 그 기분 알아)" }
+        },
+        {
+          id: "l3-2", type: "listen",
+          ko: "이번 주 내내 신경이 곤두서 있었어.",
+          hint: "‘날카로운 끝에 서 있다’는 이미지예요.",
+          tokens: ["I've", "been", "on", "edge", "all", "week"],
+          sentence: "I've been on edge all week.",
+          extra: ["relaxed", "away", "sleep"],
+          idiom: { p: "be on edge", m: "신경이 곤두서 있다" }
+        },
+        {
+          id: "l3-3", type: "quiz",
+          situation: "아들 시험이 한 달 남았는데 엄마인 내가 더 긴장된다고 털어놓아요.",
+          lines: [["A", "His exam is in a month and I'm more nervous than he is."], ["B", "__ He's been preparing well."]],
+          question: "빈칸에 들어갈 말로 가장 자연스러운 것은?",
+          options: ["Hang in there.", "Take it with a grain of salt.", "Don't flatter yourself."],
+          answer: 0,
+          sentence: "Hang in there. He's been preparing well.",
+          example: "Hang in there. He's been preparing well.",
+          idiom: { p: "hang in there", m: "조금만 더 버텨" },
+          explanation: "take it with a grain of salt는 ‘적당히 걸러 들어’, don't flatter yourself는 ‘착각하지 마’예요."
+        },
+        {
+          id: "l3-4", type: "blank",
+          situation: "너무 창피해서 숨고 싶었어요.",
+          text: "I was so embarrassed I wanted to ___.",
+          options: ["crawl under a rock", "let off steam", "break the ice"],
+          answer: 0,
+          sentence: "I was so embarrassed I wanted to crawl under a rock.",
+          example: "I was so embarrassed I wanted to crawl under a rock.",
+          idiom: { p: "crawl under a rock", m: "쥐구멍에라도 숨고 싶다" },
+          explanation: "let off steam은 ‘화를 풀다’, break the ice는 ‘어색함을 풀다’예요."
+        },
+        {
+          id: "l3-5", type: "build",
+          ko: "그 말 들으니 어깨가 확 가벼워지네.",
+          hint: "어깨에서 ‘무게’가 내려가는 그림이에요.",
+          tokens: ["That", "takes", "a", "weight", "off", "my", "shoulders"],
+          sentence: "That takes a weight off my shoulders.",
+          extra: ["heavy", "mind", "puts"],
+          idiom: { p: "take a weight off one's shoulders", m: "어깨가 가벼워지다, 부담이 사라지다" }
+        },
+        {
+          id: "l3-6", type: "listen",
+          ko: "괜찮아, 별거 아니야.",
+          hint: "사과받을 때 가장 가볍게 돌려주는 말이에요.",
+          tokens: ["It's", "no", "big", "deal", "really"],
+          sentence: "It's no big deal, really.",
+          extra: ["huge", "problem", "serious"],
+          idiom: { p: "no big deal", m: "별거 아니야" }
+        },
+        {
+          id: "l3-7", type: "quiz",
+          situation: "친구가 뜻밖의 소식을 전해요.",
+          lines: [["A", "They're moving to Jeju next month!"], ["B", "Really? __"]],
+          question: "빈칸에 들어갈 말로 가장 자연스러운 것은?",
+          options: ["I didn't see that coming.", "I'm all ears.", "Let's call it even."],
+          answer: 0,
+          sentence: "Really? I didn't see that coming.",
+          example: "Really? I didn't see that coming.",
+          idiom: { p: "not see it coming", m: "전혀 예상하지 못하다" },
+          explanation: "I'm all ears는 ‘잘 듣고 있어’, call it even은 ‘서로 퉁치자’예요."
+        }
+      ]
+    },
+    {
+      id: "l4", title: "일 & 일정 조율", emoji: "📅", color: "#1CB0F6",
+      sub: "약속 잡기·미루기·연락하기", items: [
+        {
+          id: "l4-1", type: "build",
+          ko: "이번 주는 일정이 꽉 찼어.",
+          hint: "‘묶여 있다’는 이미지로, busy보다 생생한 표현이에요.",
+          tokens: ["I'm", "totally", "tied", "up", "this", "week"],
+          sentence: "I'm totally tied up this week.",
+          extra: ["free", "open", "busy"],
+          idiom: { p: "be tied up", m: "꼼짝없이 바쁘다" }
+        },
+        {
+          id: "l4-2", type: "listen",
+          ko: "그건 다음으로 미룰 수 있을까?",
+          hint: "비 예보 때 받는 ‘다음에 쓰는 표’에서 온 표현이에요.",
+          tokens: ["Can", "we", "take", "a", "rain", "check", "on", "that"],
+          sentence: "Can we take a rain check on that?",
+          extra: ["cancel", "move", "today"],
+          idiom: { p: "take a rain check", m: "다음으로 미루다" }
+        },
+        {
+          id: "l4-3", type: "build",
+          ko: "확정되면 계속 알려줘.",
+          hint: "계속 알려 달라는 뜻으로, 게시판에 붙여 두는 이미지예요.",
+          tokens: ["Keep", "me", "posted", "once", "it's", "confirmed"],
+          sentence: "Keep me posted once it's confirmed.",
+          extra: ["secret", "quiet", "later"],
+          idiom: { p: "keep me posted", m: "계속 알려줘" }
+        },
+        {
+          id: "l4-4", type: "quiz",
+          situation: "상사가 오늘 밤까지 파일을 달라고 해요.",
+          lines: [["A", "Can you get me the file by tonight?"], ["B", "__ You'll have it by six."]],
+          question: "빈칸에 들어갈 말로 가장 자연스러운 것은?",
+          options: ["Consider it done.", "It slipped my mind.", "I'm on the fence."],
+          answer: 0,
+          sentence: "Consider it done. You'll have it by six.",
+          example: "Consider it done. You'll have it by six.",
+          idiom: { p: "consider it done", m: "이미 끝난 셈 치세요" },
+          explanation: "slip one's mind는 ‘깜빡하다’, on the fence는 ‘결정을 못 내리고’예요."
+        },
+        {
+          id: "l4-5", type: "blank",
+          situation: "아무도 말을 안 해서 농담을 던져 분위기를 풀었어요.",
+          text: "Nobody was talking, so I told a joke to ___.",
+          options: ["break the ice", "take a rain check", "call it a day"],
+          answer: 0,
+          sentence: "Nobody was talking, so I told a joke to break the ice.",
+          example: "I told a joke to break the ice.",
+          idiom: { p: "break the ice", m: "어색한 분위기를 풀다" },
+          explanation: "take a rain check는 ‘다음으로 미루다’, call it a day는 ‘오늘은 이만 끝내다’예요."
+        },
+        {
+          id: "l4-6", type: "build",
+          ko: "그 건은 일단 뒤로 미뤄 두자.",
+          hint: "요리할 때 ‘뒤쪽 화구’로 옮겨 두는 그림이에요.",
+          tokens: ["Let's", "put", "that", "on", "the", "back", "burner", "for", "now"],
+          sentence: "Let's put that on the back burner for now.",
+          extra: ["front", "fire", "quickly"],
+          idiom: { p: "on the back burner", m: "우선순위에서 뒤로 미루다" }
+        },
+        {
+          id: "l4-7", type: "listen",
+          ko: "제가 다시 확인하고 연락드릴게요.",
+          hint: "‘다시 연락하다’는 get back to로 말해요.",
+          tokens: ["Let", "me", "double-check", "and", "get", "back", "to", "you"],
+          sentence: "Let me double-check and get back to you.",
+          extra: ["forget", "leave", "again"],
+          idiom: { p: "get back to you", m: "다시 연락드리다" }
+        }
+      ]
+    },
+    {
+      id: "l5", title: "전화영어 복습팩", emoji: "📞", color: "#FF4B4B",
+      sub: "지영 님 통화에서 나온 표현 그대로", items: [
+        {
+          id: "l5-1", type: "build",
+          ko: "지금 돈가스에 파고들고 있어.",
+          hint: "통화에서 나온 그 표현 — 음식에 ‘파고들다’.",
+          tokens: ["I'm", "digging", "into", "a", "pork", "cutlet", "right", "now"],
+          sentence: "I'm digging into a pork cutlet right now.",
+          extra: ["cutting", "ordering", "chewing"],
+          idiom: { p: "dig into", m: "파고들듯 먹다, (일을) 본격적으로 시작하다" }
+        },
+        {
+          id: "l5-2", type: "build",
+          ko: "오후에 학부모 상담이 있어.",
+          hint: "‘학부모-교사 면담’은 한 단어처럼 붙여 써요.",
+          tokens: ["I", "have", "a", "parent-teacher", "meeting", "this", "afternoon"],
+          sentence: "I have a parent-teacher meeting this afternoon.",
+          extra: ["parents", "teachers", "morning"],
+          idiom: { p: "parent-teacher meeting", m: "학부모-교사 면담" }
+        },
+        {
+          id: "l5-3", type: "build",
+          ko: "아이가 그 학교를 간절히 원하고 있어.",
+          hint: "‘마음을 그곳에 두고 있다’는 이미지예요.",
+          tokens: ["He", "has", "his", "heart", "set", "on", "that", "school"],
+          sentence: "He has his heart set on that school.",
+          extra: ["mind", "eyes", "hands"],
+          idiom: { p: "have one's heart set on", m: "간절히 원하다" }
+        },
+        {
+          id: "l5-4", type: "build",
+          ko: "어떻게 될지 좀 긴장돼.",
+          hint: "결과가 흘러갈 방향을 걱정할 때 쓰는 말이에요.",
+          tokens: ["I'm", "a", "bit", "nervous", "about", "how", "it'll", "go"],
+          sentence: "I'm a bit nervous about how it'll go.",
+          extra: ["where", "when", "who"],
+          idiom: { p: "nervous about how it'll go", m: "어떻게 될지 긴장되다" }
+        },
+        {
+          id: "l5-5", type: "quiz",
+          situation: "책모임에 가기로 했지만 너무 지쳐서 오늘은 쉬고 싶어요.",
+          lines: [["A", "Aren't you coming to the book club tonight?"], ["B", "I'm wiped out. __"]],
+          question: "빈칸에 들어갈 말로 가장 자연스러운 것은?",
+          options: ["I'm going to take a rain check.", "I'm all thumbs today.", "Let's call it even."],
+          answer: 0,
+          sentence: "I'm wiped out. I'm going to take a rain check.",
+          example: "I'm wiped out. I'm going to take a rain check.",
+          idiom: { p: "take a rain check", m: "다음으로 미루다" },
+          explanation: "be wiped out은 ‘완전히 지치다’, all thumbs는 ‘손이 서툴다’예요."
+        },
+        {
+          id: "l5-6", type: "build",
+          ko: "짧게 나눠서 조금씩 해 보자.",
+          hint: "‘한 입 크기’처럼 잘게 나눈다는 뜻이에요.",
+          tokens: ["Let's", "take", "it", "in", "bite-sized", "pieces"],
+          sentence: "Let's take it in bite-sized pieces.",
+          extra: ["huge", "whole", "slow"],
+          idiom: { p: "bite-sized", m: "한 입 크기의, 짧게 나눈" }
+        },
+        {
+          id: "l5-7", type: "listen",
+          ko: "이야기는 여기서 접어두자.",
+          hint: "수업이나 회의를 마무리할 때 쓰는 말이에요.",
+          tokens: ["Let's", "call", "it", "a", "day"],
+          sentence: "Let's call it a day.",
+          extra: ["night", "week", "end"],
+          idiom: { p: "call it a day", m: "오늘은 이만 끝내다" }
+        }
+      ]
+    }
+  ];
+
+  var DAILY_GOAL = 50;
+
+  // 문장/예문 필드를 한 곳에서 정리 (조립·듣기 문항은 sentence, 선택 문항은 example)
+  (function normalize() {
+    var i, j, it;
+    for (i = 0; i < LESSONS.length; i++) {
+      for (j = 0; j < LESSONS[i].items.length; j++) {
+        it = LESSONS[i].items[j];
+        if (!it.sentence) it.sentence = it.example || "";
+        if (!it.example) it.example = it.sentence;
+        if (!it.ko) it.ko = it.situation || "";
+      }
+    }
+  })();
+
+  var XP_FIRST = 10;   // 첫 시도 정답
+  var XP_REVIEW = 5;   // 복습 정답
+  var STORE_KEY = "jiyoung-english-quest-v1";
+
+  /* =========================================================
+     STATE
+     ========================================================= */
+  function pad2(n) { return (n < 10 ? "0" : "") + n; }
+  function dayStr(d) {
+    return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
+  }
+  function today() { return dayStr(new Date()); }
+  function yesterday() {
+    var d = new Date();
+    d.setDate(d.getDate() - 1);
+    return dayStr(d);
+  }
+
+  var state = {
+    streak: 0,
+    lastDay: null,
+    xpDay: null,
+    xpToday: 0,
+    totalXp: 0,
+    completed: {},
+    bookmarks: []
+  };
+
+  function loadState() {
+    try {
+      var raw = window.localStorage.getItem(STORE_KEY);
+      if (!raw) return;
+      var s = JSON.parse(raw);
+      if (!s || typeof s !== "object") return;
+      if (typeof s.streak === "number") state.streak = s.streak;
+      if (typeof s.lastDay === "string") state.lastDay = s.lastDay;
+      if (typeof s.xpDay === "string") state.xpDay = s.xpDay;
+      if (typeof s.xpToday === "number") state.xpToday = s.xpToday;
+      if (typeof s.totalXp === "number") state.totalXp = s.totalXp;
+      if (s.completed && typeof s.completed === "object") state.completed = s.completed;
+      if (Object.prototype.toString.call(s.bookmarks) === "[object Array]") state.bookmarks = s.bookmarks;
+    } catch (e) { /* 저장소를 못 쓰면 이번 세션만 동작 */ }
+  }
+
+  function saveState() {
+    try {
+      window.localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    } catch (e) { /* 사생활 보호 모드 등에서도 앱은 계속 동작 */ }
+  }
+
+  function rollDay() {
+    var t = today();
+    if (state.xpDay !== t) {
+      state.xpDay = t;
+      state.xpToday = 0;
+    }
+    // 하루 이상 끊기면 연속일 초기화 (어제/오늘 학습했으면 유지)
+    if (state.lastDay && state.lastDay !== t && state.lastDay !== yesterday()) {
+      state.streak = 0;
+    }
+  }
+
+  /* =========================================================
+     UTIL
+     ========================================================= */
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function esc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+  function shuffle(arr) {
+    var a = arr.slice(), i, j, tmp;
+    for (i = a.length - 1; i > 0; i--) {
+      j = Math.floor(Math.random() * (i + 1));
+      tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+  function el(id) { return document.getElementById(id); }
+  function hexA(hex, a) {
+    var h = String(hex).replace("#", "");
+    if (h.length === 3) h = h.charAt(0) + h.charAt(0) + h.charAt(1) + h.charAt(1) + h.charAt(2) + h.charAt(2);
+    var r = parseInt(h.substr(0, 2), 16), g = parseInt(h.substr(2, 2), 16), b = parseInt(h.substr(4, 2), 16);
+    return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+  }
+
+  var rankNames = [
+    [0, "🪄 노비스"], [80, "🌱 루키"], [200, "🔥 스피커"], [400, "🚀 네이티브 킬러"]
+  ];
+  function rankOf(xp) {    var out = rankNames[0][1];
+    for (var i = 0; i < rankNames.length; i++) {
+      if (xp >= rankNames[i][0]) out = rankNames[i][1];
+    }
+    return out;
+  }
+
+  /* =========================================================
+     SPEECH
+     ========================================================= */
+  var speechOK = !!(window.speechSynthesis && window.SpeechSynthesisUtterance);
+  var voicesCache = [];
+
+  function loadVoices() {
+    if (!speechOK) return;
+    try { voicesCache = window.speechSynthesis.getVoices() || []; } catch (e) { voicesCache = []; }
+  }
+  if (speechOK) {
+    loadVoices();
+    if (typeof window.speechSynthesis.addEventListener === "function") {
+      window.speechSynthesis.addEventListener("voiceschanged", loadVoices);
+    } else {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+  }
+
+  function pickVoice() {
+    if (!voicesCache.length) loadVoices();
+    var vs = voicesCache || [], en = [], i;
+    for (i = 0; i < vs.length; i++) {
+      if (/^en([-_]|$)/i.test(vs[i].lang || "")) en.push(vs[i]);
+    }
+    var prefer = ["Samantha", "Ava", "Allison", "Karen", "Google US English", "Microsoft Aria", "Microsoft Jenny", "Microsoft Zira"];
+    for (var p = 0; p < prefer.length; p++) {
+      for (i = 0; i < en.length; i++) {
+        if (en[i].name && en[i].name.indexOf(prefer[p]) !== -1) return en[i];
+      }
+    }
+    for (i = 0; i < en.length; i++) {
+      if (/en[-_]US/i.test(en[i].lang || "")) return en[i];
+    }
+    return en.length ? en[0] : null;
+  }
+
+  function speak(text, rate) {
+    if (!speechOK) return false;
+    try {
+      window.speechSynthesis.cancel();
+      var u = new window.SpeechSynthesisUtterance(text);
+      u.lang = "en-US";
+      u.rate = rate || 0.95;
+      u.pitch = 1;
+      u.volume = 1;
+      var v = pickVoice();
+      if (v) { u.voice = v; u.lang = v.lang || "en-US"; }
+      window.speechSynthesis.speak(u);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /* soft blips (no audio files) */
+  var actx = null;
+  function blip(kind) {
+    try {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      if (!actx) actx = new Ctx();
+      if (actx.state === "suspended" && actx.resume) actx.resume();
+      var seq = kind === "ok" ? [[660, 0], [880, 0.09]] : [[300, 0], [200, 0.1]];
+      for (var i = 0; i < seq.length; i++) {
+        var o = actx.createOscillator(), g = actx.createGain();
+        var t0 = actx.currentTime + seq[i][1];
+        o.type = "sine";
+        o.frequency.value = seq[i][0];
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(0.05, t0 + 0.012);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.16);
+        o.connect(g); g.connect(actx.destination);
+        o.start(t0); o.stop(t0 + 0.18);
+      }
+    } catch (e) { /* 소리는 선택 사항 */ }
+  }
+
+  /* =========================================================
+     HOME
+     ========================================================= */
+  function completedCount() {
+    var n = 0;
+    for (var k in state.completed) {
+      if (Object.prototype.hasOwnProperty.call(state.completed, k)) n++;
+    }
+    return n;
+  }
+
+  function renderHome() {
+    el("streakNum").textContent = String(state.streak);
+    el("xpNum").textContent = String(state.xpToday);
+    el("rankPill").textContent = rankOf(state.totalXp);
+
+    var pct = Math.min(100, Math.round((state.xpToday / DAILY_GOAL) * 100));
+    el("goalFill").style.width = pct + "%";
+    el("goalLeft").textContent = state.xpToday + " / " + DAILY_GOAL + " XP";
+    el("goalDone").textContent = state.xpToday >= DAILY_GOAL ? "목표 달성 🎉" : "오늘 " + (DAILY_GOAL - state.xpToday) + " XP 남음";
+
+    var hsub;
+    if (state.streak >= 2) hsub = state.streak + "일 연속 학습 중 — 문장 하나만 더!";
+    else if (state.xpToday > 0) hsub = "좋아요, 오늘 " + state.xpToday + " XP 쌓았어요";
+    else hsub = "오늘도 문장 하나씩, 5분이면 충분해요";
+    el("heroSub").textContent = hsub;
+
+    el("lessonCount").textContent = completedCount() + " / " + LESSONS.length + " 완료";
+
+    var html = "";
+    for (var i = 0; i < LESSONS.length; i++) {
+      var L = LESSONS[i];
+      var done = !!state.completed[L.id];
+      var dots = "";
+      for (var d = 0; d < L.items.length; d++) {
+        dots += '<span class="dot' + (done ? " on" : "") + '"></span>';
+      }
+      html += '<button class="lesson" data-lesson="' + L.id + '">' +
+        '<span class="ico" style="background:' + hexA(L.color, 0.12) + '">' + L.emoji + '</span>' +
+        '<span class="body">' +
+          '<span class="t">' + esc(L.title) +
+            (done ? '<span class="done">완료</span>' : '') +
+          '</span>' +
+          '<span class="s">' + esc(L.sub) + '</span>' +
+          '<span class="meta">' + L.items.length + '문항' + (done ? ' · 다시 하기' : '') + '</span>' +
+          '<span class="meta" style="margin-top:5px">' + dots + '</span>' +
+        '</span>' +
+        '<span class="chev">›</span>' +
+      '</button>';
+    }
+    el("lessonList").innerHTML = html;
+    updateNoteBadge();
+  }
+
+  function updateNoteBadge() {
+    var b = el("noteBadge");
+    if (!b) return;
+    var n = state.bookmarks.length;
+    if (n > 0) { b.textContent = String(n); b.hidden = false; }
+    else { b.hidden = true; }
+  }
+
+  /* =========================================================
+     NOTES
+     ========================================================= */
+  function renderNotes() {
+    var list = el("noteList");
+    el("noteSub").textContent = state.bookmarks.length
+      ? state.bookmarks.length + "개의 표현을 모았어요. 🔊로 예문을 다시 들어 보세요."
+      : "저장한 표현과 예문을 한눈에 복습해요.";
+
+    if (!state.bookmarks.length) {
+      list.innerHTML = '<div class="nempty">' +
+        '<div class="e">⭐</div>' +
+        '<div class="t">아직 저장한 표현이 없어요</div>' +
+        '<div class="d">레슨에서 정답을 맞히면 나오는<br>⭐ 버튼을 누르면 여기에 쌓여요.</div>' +
+        '</div>';
+      return;
+    }
+
+    var html = "";
+    for (var i = 0; i < state.bookmarks.length; i++) {
+      var b = state.bookmarks[i];
+      html += '<div class="ncard">' +
+        '<div class="top">' +
+          '<div class="p">' + esc(b.phrase) + '</div>' +
+          '<button class="spk" data-say="' + esc(b.example) + '" aria-label="예문 듣기">🔊</button>' +
+        '</div>' +
+        '<div class="m">' + esc(b.meaning) + '</div>' +
+        '<div class="x">' + esc(b.example) + '</div>' +
+        '<div class="foot">' +
+          '<span class="src">' + esc(b.lesson) + '</span>' +
+          '<button class="del" data-del="' + i + '">삭제</button>' +
+        '</div>' +
+      '</div>';
+    }
+    list.innerHTML = html;
+  }
+
+  /* =========================================================
+     VIEWS
+     ========================================================= */
+  var currentView = "home";
+  function showView(name) {
+    currentView = name;
+    var map = { home: "v-home", lesson: "v-lesson", note: "v-note" };
+    for (var k in map) {
+      if (Object.prototype.hasOwnProperty.call(map, k)) {
+        el(map[k]).classList.toggle("hidden", k !== name);
+      }
+    }
+    if (name === "home") renderHome();
+    if (name === "note") renderNotes();
+  }
+
+  /* =========================================================
+     SESSION
+     ========================================================= */
+  var S = null;
+
+  function findLesson(id) {
+    for (var i = 0; i < LESSONS.length; i++) {
+      if (LESSONS[i].id === id) return LESSONS[i];
+    }
+    return null;
+  }
+
+  function startLesson(id) {
+    var L = findLesson(id);
+    if (!L) return;
+    S = {
+      lesson: L,
+      queue: L.items.slice(),
+      idx: 0,
+      wrong: [],
+      xp: 0,
+      answered: 0,
+      right: 0,
+      isReview: false,
+      saved: false,
+      placed: [],
+      pool: [],
+      choice: null,
+      locked: false,
+      revealed: false
+    };
+    hideSheet();
+    showView("lesson");
+    renderQuestion();
+  }
+
+  function startReview() {
+    if (!S || !S.wrong.length) return;
+    var q = S.wrong.slice();
+    S.wrong = [];
+    S.queue = q;
+    S.idx = 0;
+    S.isReview = true;
+    hideSheet();
+    showView("lesson");
+    renderQuestion();
+  }
+
+  function progress() {
+    if (!S) return;
+    var n = S.queue.length;
+    var doneCount = S.idx + (S.locked ? 1 : 0);
+    var pct = n ? Math.min(100, Math.round((doneCount / n) * 100)) : 0;
+    el("lFill").style.width = pct + "%";
+    el("qCount").textContent = Math.min(n, S.idx + 1) + "/" + n;
+  }
+
+  function poolWord(id) {
+    for (var i = 0; i < S.pool.length; i++) {
+      if (S.pool[i].id === id) return S.pool[i].word;
+    }
+    return "";
+  }
+
+  function tagFor(item) {
+    if (item.type === "build") return '<div class="qtag">🧩 문장 조립</div>';
+    if (item.type === "listen") return '<div class="qtag blue">🎧 듣고 조립</div>';
+    if (item.type === "blank") return '<div class="qtag pink">📝 빈칸 채우기</div>';
+    return '<div class="qtag gray">💬 대화 속 표현</div>';
+  }
+
+  function renderQuestion() {
+    if (!S) return;
+    if (S.idx >= S.queue.length) { finishLesson(); return; }
+
+    var item = S.queue[S.idx];
+    S.locked = false;
+    S.revealed = false;
+    S.choice = null;
+    S.placed = [];
+
+    var html = tagFor(item);
+    var wrap = el("qWrap");
+    el("checkBar").style.display = "";
+    el("checkBtn").textContent = "확인";
+    el("checkBtn").disabled = true;
+    el("checkBtn").className = "btn primary";
+
+    if (item.type === "build" || item.type === "listen") {
+      S.pool = [];
+      for (var t = 0; t < item.tokens.length; t++) {
+        S.pool.push({ id: "t" + t, word: item.tokens[t] });
+      }
+      for (var x = 0; x < item.extra.length; x++) {
+        S.pool.push({ id: "x" + x, word: item.extra[x] });
+      }
+      S.pool = shuffle(S.pool);
+
+      if (item.type === "listen") {
+        if (speechOK) {
+          html += '<div class="audio-panel">' +
+            '<div class="audio-btns">' +
+              '<button class="abtn" data-speak="0.95"><span class="e">🔊</span>보통 속도</button>' +
+              '<button class="abtn" data-speak="0.7"><span class="e">🐢</span>천천히</button>' +
+            '</div>' +
+            '<p class="audio-note">문장을 듣고 단어를 순서대로 놓아 보세요.</p>' +
+            '<button class="reveal" id="revealBtn">텍스트로 보기</button>' +
+            '<div class="gtext" id="gtext" hidden>' + esc(item.sentence) + '</div>' +
+          '</div>';
+        } else {
+          html += '<div class="notice">이 브라우저에서는 음성 재생이 지원되지 않아요.<br>아래 문장을 보고 조립해 보세요.</div>' +
+            '<div class="gtext">' + esc(item.sentence) + '</div>';
+        }
+        html += '<p class="ko">' + esc(item.ko) + '</p>' +
+          '<p class="hint">💡 ' + esc(item.hint) + '</p>';
+      } else {
+        html += '<p class="ko">' + esc(item.ko) + '</p>' +
+          '<p class="hint">💡 ' + esc(item.hint) + '</p>';
+      }
+
+      html += '<div class="answerline" id="answerline"></div>' +
+        '<div class="tiles" id="tiles"></div>';
+    } else if (item.type === "blank") {
+      html += '<p class="ko">빈칸에 알맞은 표현을 골라 보세요.</p>' +
+        '<p class="hint">💡 ' + esc(item.situation) + '</p>' +
+        '<div class="sentbox">' + esc(item.text).replace("___", '<span class="gap">______</span>') + '</div>' +
+        '<div class="opts" id="opts">' + optionsHTML(item) + '</div>';
+    } else {
+      html += '<p class="ko">' + esc(item.question) + '</p>' +
+        '<p class="hint">💡 ' + esc(item.situation) + '</p>' + dialoguesHTML(item) +
+        '<div class="opts" id="opts">' + optionsHTML(item) + '</div>';
+    }
+
+    wrap.innerHTML = html;
+    wrap.scrollTop = 0;
+    progress();
+
+    if (item.type === "build" || item.type === "listen") {
+      paintTiles();
+      if (item.type === "listen" && speechOK) {
+        window.setTimeout(function () {
+          if (S && S.queue[S.idx] === item && !S.locked) speak(item.sentence, 0.95);
+        }, 420);
+      }
+    }
+  }
+
+  function dialoguesHTML(item) {
+    var h = '<div class="dlg">';
+    for (var i = 0; i < item.lines.length; i++) {
+      var who = item.lines[i][0], txt = item.lines[i][1];
+      h += '<div class="bub ' + (who === "A" ? "a" : "b") + '"><span class="who">' + esc(who) + '</span>' +
+        esc(txt).replace("__", '<span class="gap">______</span>') + '</div>';
+    }
+    return h + "</div>";
+  }
+
+  function optionsHTML(item) {
+    var h = "", keys = ["1", "2", "3", "4"];
+    for (var i = 0; i < item.options.length; i++) {
+      h += '<button class="opt" data-opt="' + i + '">' +
+        '<span class="k">' + keys[i] + '</span><span>' + esc(item.options[i]) + '</span></button>';
+    }
+    return h;
+  }
+
+  function paintTiles() {
+    var item = S.queue[S.idx];
+    var al = el("answerline"), tl = el("tiles");
+    if (!al || !tl) return;
+
+    if (S.placed.length) {
+      var h = "";
+      for (var i = 0; i < S.placed.length; i++) {
+        h += '<button class="tile placed" data-placed="' + S.placed[i] + '">' + esc(poolWord(S.placed[i])) + '</button>';
+      }
+      al.innerHTML = h;
+    } else {
+      al.innerHTML = '<span class="ph">여기에 단어를 놓아 보세요</span>';
+    }
+
+    var h2 = "";
+    for (var j = 0; j < S.pool.length; j++) {
+      if (S.placed.indexOf(S.pool[j].id) !== -1) continue;
+      h2 += '<button class="tile pool" data-pool="' + S.pool[j].id + '">' + esc(S.pool[j].word) + '</button>';
+    }
+    tl.innerHTML = h2;
+
+    updateCheck();
+  }
+
+  function updateCheck() {
+    var item = S.queue[S.idx];
+    var btn = el("checkBtn");
+    if (!btn) return;
+    var ready;
+    if (item.type === "build" || item.type === "listen") ready = S.placed.length > 0;
+    else ready = S.choice !== null;
+    btn.disabled = !ready;
+  }
+
+  function checkAnswer() {
+    if (!S || S.locked) return;
+    var item = S.queue[S.idx];
+    var ok = false;
+
+    if (item.type === "build" || item.type === "listen") {
+      if (!S.placed.length) return;
+      var words = [];
+      for (var i = 0; i < S.placed.length; i++) words.push(poolWord(S.placed[i]));
+      ok = words.join(" ").toLowerCase() === item.tokens.join(" ").toLowerCase();
+      var al = el("answerline");
+      if (al) { al.classList.add("locked"); }
+      var tl = el("tiles");
+      if (tl) { tl.classList.add("locked"); }
+    } else {
+      if (S.choice === null) return;
+      ok = S.choice === item.answer;
+      var opts = el("opts");
+      if (opts) {
+        opts.classList.add("locked");
+        var btns = opts.querySelectorAll(".opt");
+        for (var b = 0; b < btns.length; b++) {
+          var idx = parseInt(btns[b].getAttribute("data-opt"), 10);
+          if (idx === item.answer) btns[b].classList.add("right");
+          else if (idx === S.choice) btns[b].classList.add("wrong");
+        }
+      }
+    }
+
+    S.locked = true;
+    S.answered++;
+    if (ok) {
+      S.right++;
+      S.xp += S.isReview ? XP_REVIEW : XP_FIRST;
+      blip("ok");
+    } else {
+      if (!S.isReview) S.wrong.push(item);
+      blip("no");
+    }
+    progress();
+    showFeedback(item, ok);
+  }
+
+  /* =========================================================
+     FEEDBACK SHEET
+     ========================================================= */
+  function isBookmarked(item) {
+    for (var i = 0; i < state.bookmarks.length; i++) {
+      if (state.bookmarks[i].phrase === item.idiom.p && state.bookmarks[i].example === item.example) return true;
+    }
+    return false;
+  }
+
+  function toggleBookmark(item) {
+    var list = state.bookmarks, i;
+    for (i = 0; i < list.length; i++) {
+      if (list[i].phrase === item.idiom.p && list[i].example === item.example) {
+        list.splice(i, 1);
+        saveState();
+        updateNoteBadge();
+        return false;
+      }
+    }
+    list.unshift({
+      phrase: item.idiom.p,
+      meaning: item.idiom.m,
+      example: item.example,
+      lesson: S.lesson.title
+    });
+    saveState();
+    updateNoteBadge();
+    return true;
+  }
+
+  function showFeedback(item, ok) {
+    var sheet = el("sheet");
+    var bd = el("backdrop");
+    var saved = isBookmarked(item);
+
+    var h = '<div class="stitle"><span class="e">' + (ok ? "✅" : "💡") + '</span>' +
+      (ok ? "정답이에요!" : "아쉬워요, 이렇게 말해요") + '</div>';
+
+    h += '<div class="scorrect">' +
+      '<div class="txt">' + esc(item.sentence) + '</div>' +
+      '<button class="spk" data-say="' + esc(item.sentence) + '" aria-label="예문 듣기">🔊</button>' +
+    '</div>';
+
+    h += '<div class="idiom">' +
+      '<div class="p">⭐ ' + esc(item.idiom.p) + '</div>' +
+      '<div class="m">' + esc(item.idiom.m) + '</div>' +
+    '</div>';
+
+    if (item.explanation) {
+      h += '<div class="explan">' + esc(item.explanation) + '</div>';
+    }
+
+    h += '<div class="sfoot">' +
+      '<button class="btn ghost' + (saved ? " saved" : "") + '" id="bmBtn">' +
+        (saved ? "★ 저장됨" : "⭐ 노트에 저장") + '</button>' +
+      '<button class="btn ' + (ok ? "primary" : "blue") + '" id="nextBtn">계속</button>' +
+    '</div>';
+
+    sheet.className = "sheet " + (ok ? "ok" : "no");
+    sheet.innerHTML = h;
+    bd.classList.add("show");
+    // 다음 프레임에 열어 애니메이션 유지
+    window.setTimeout(function () { sheet.classList.add("show"); }, 10);
+
+    el("bmBtn").addEventListener("click", function () {
+      var nowSaved = toggleBookmark(item);
+      this.textContent = nowSaved ? "★ 저장됨" : "⭐ 노트에 저장";
+      this.classList.toggle("saved", nowSaved);
+    });
+
+    el("nextBtn").addEventListener("click", nextQuestion);
+  }
+
+  function hideSheet() {
+    var sheet = el("sheet");
+    if (sheet) sheet.classList.remove("show");
+    var bd = el("backdrop");
+    if (bd) bd.classList.remove("show");
+  }
+
+  function nextQuestion() {
+    hideSheet();
+    if (!S) return;
+    S.idx++;
+    S.locked = false;
+    if (S.idx >= S.queue.length) { finishLesson(); return; }
+    renderQuestion();
+  }
+
+  /* =========================================================
+     FINISH
+     ========================================================= */
+  function saveSessionResult() {
+    var t = today();
+    if (state.lastDay !== t) {
+      state.streak = (state.lastDay === yesterday()) ? state.streak + 1 : 1;
+      state.lastDay = t;
+    }
+    state.xpToday += S.xp;
+    state.totalXp += S.xp;
+    var prev = state.completed[S.lesson.id];
+    state.completed[S.lesson.id] = {
+      times: prev && prev.times ? prev.times + 1 : 1,
+      day: t
+    };
+    saveState();
+  }
+
+  function finishLesson() {
+    hideSheet();
+    if (!S) { showView("home"); return; }
+    if (!S.saved) {
+      saveSessionResult();
+      S.saved = true;
+      S.savedXp = S.xp;
+    } else if (S.xp > (S.savedXp || 0)) {
+      // 복습에서 더 얻은 XP를 이어서 반영
+      var diff = S.xp - S.savedXp;
+      state.xpToday += diff;
+      state.totalXp += diff;
+      S.savedXp = S.xp;
+      saveState();
+    }
+
+    S.locked = true;
+    S.finished = true;
+    var acc = S.answered ? Math.round((S.right / S.answered) * 100) : 0;
+    var top = S.isReview ? "복습 완료!" : "레슨 완료!";
+    var emo = S.isReview ? "🧠" : (acc === 100 ? "🏆" : "🎉");
+    var sub = S.isReview
+      ? "틀렸던 문장을 다시 붙여 봤어요. 이제 입에 붙을 차례예요."
+      : (acc === 100 ? "전부 정확했어요. 오늘 이 표현들로 한 문장씩 말해 보세요." : "틀린 문장은 한 번 더 붙여 보면 오래 남아요.");
+
+    var h = '<div class="result">' +
+      '<div class="big">' + emo + '</div>' +
+      '<h2>' + top + '</h2>' +
+      '<div class="sub">' + esc(sub) + '</div>' +
+      '<div class="statrow">' +
+        '<div class="stat"><div class="v">+' + S.xp + '</div><div class="l">오늘 얻은 XP</div></div>' +
+        '<div class="stat"><div class="v">' + acc + '%</div><div class="l">정답률</div></div>' +
+        '<div class="stat"><div class="v">🔥 ' + state.streak + '</div><div class="l">연속 학습</div></div>' +
+      '</div>' +
+      '<div class="stack">';
+
+    if (!S.isReview && S.wrong.length) {
+      h += '<button class="btn blue" id="retryBtn">틀린 문제 ' + S.wrong.length + '개 다시 풀기</button>';
+    }
+    if (S.isReview && S.wrong.length) {
+      h += '<p class="sub" style="margin:0 0 12px">아직 ' + S.wrong.length + '개는 조금 어려웠어요. 내일 다시 만나요.</p>';
+    }
+    h += '<button class="btn primary" id="homeBtn">홈으로</button></div></div>';
+
+    var wrap = el("qWrap");
+    wrap.innerHTML = h;
+    wrap.scrollTop = 0;
+    el("checkBar").style.display = "none";
+
+    var rb = el("retryBtn");
+    if (rb) rb.addEventListener("click", startReview);
+    el("homeBtn").addEventListener("click", function () {
+      S = null;
+      el("checkBar").style.display = "";
+      showView("home");
+    });
+  }
+
+  /* =========================================================
+     EVENTS
+     ========================================================= */
+  document.addEventListener("click", function (e) {
+    var t = e.target;
+
+    // 탭 이동
+    var tabBtn = t.closest ? t.closest("[data-tab]") : null;
+    if (tabBtn) {
+      showView(tabBtn.getAttribute("data-tab"));
+      return;
+    }
+
+    // 레슨 시작
+    var lessonBtn = t.closest ? t.closest("[data-lesson]") : null;
+    if (lessonBtn) {
+      startLesson(lessonBtn.getAttribute("data-lesson"));
+      return;
+    }
+
+    // 단어 타일
+    var poolTile = t.closest ? t.closest("[data-pool]") : null;
+    if (poolTile && S && !S.locked) {
+      var pid = poolTile.getAttribute("data-pool");
+      if (S.placed.indexOf(pid) === -1) S.placed.push(pid);
+      paintTiles();
+      return;
+    }
+    var placedTile = t.closest ? t.closest("[data-placed]") : null;
+    if (placedTile && S && !S.locked) {
+      var rid = placedTile.getAttribute("data-placed");
+      var at = S.placed.indexOf(rid);
+      if (at !== -1) S.placed.splice(at, 1);
+      paintTiles();
+      return;
+    }
+
+    // 선택지
+    var optBtn = t.closest ? t.closest("[data-opt]") : null;
+    if (optBtn && S && !S.locked) {
+      S.choice = parseInt(optBtn.getAttribute("data-opt"), 10);
+      var opts = el("opts");
+      if (opts) {
+        var all = opts.querySelectorAll(".opt");
+        for (var i = 0; i < all.length; i++) all[i].classList.remove("sel");
+      }
+      optBtn.classList.add("sel");
+      updateCheck();
+      return;
+    }
+
+    // 듣기 버튼
+    var sp = t.closest ? t.closest("[data-speak]") : null;
+    if (sp) {
+      var rate = parseFloat(sp.getAttribute("data-speak"));
+      var it = S && S.queue[S.idx];
+      if (it) speak(it.sentence, rate);
+      return;
+    }
+
+    // 예문 듣기 (시트/노트)
+    var say = t.closest ? t.closest("[data-say]") : null;
+    if (say) {
+      speak(say.getAttribute("data-say"), 0.95);
+      return;
+    }
+
+    // 텍스트 보기
+    if (t.id === "revealBtn") {
+      var gt = el("gtext");
+      if (gt) { gt.hidden = false; t.style.display = "none"; }
+      return;
+    }
+
+    // 확인
+    if (t.id === "checkBtn") { checkAnswer(); return; }
+
+    // 나가기
+    if (t.id === "quitBtn") { confirmQuit(); return; }
+
+    // 노트 삭제
+    var del = t.closest ? t.closest("[data-del]") : null;
+    if (del) {
+      var i2 = parseInt(del.getAttribute("data-del"), 10);
+      if (!isNaN(i2)) {
+        state.bookmarks.splice(i2, 1);
+        saveState();
+        renderNotes();
+        updateNoteBadge();
+      }
+      return;
+    }
+  });
+
+  function confirmQuit() {
+    var hasProgress = S && S.answered > 0 && !S.finished;
+    if (hasProgress) {
+      if (!window.confirm("레슨을 그만둘까요? 지금까지 푼 기록은 저장되지 않아요.")) return;
+    }
+    hideSheet();
+    S = null;
+    el("checkBar").style.display = "";
+    showView("home");
+  }
+
+  /* =========================================================
+     BOOT
+     ========================================================= */
+  loadState();
+  rollDay();
+  saveState();
+  renderHome();
+  showView("home");
+
+  // 화면 회전/리사이즈 시 스크롤 위치만 정리
+  window.addEventListener("orientationchange", function () {
+    var w = el("qWrap");
+    if (w) w.scrollTop = 0;
+  });
+
+})();
+</script>
+</body>
+</html>
